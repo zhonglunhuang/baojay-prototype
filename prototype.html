@@ -1,0 +1,615 @@
+<meta charset="utf-8">
+<title>寶傑淨化科技 · 可操作原型</title>
+<style>
+  :root{--nav:#1f3c66;--pri:#2f5fb0;--pri-d:#27408b;--ink:#1f2733;--mut:#6b7686;--line:#e4e8ef;--bg:#f4f6fa;
+    --ok:#2e9e5b;--okbg:#e7f6ed;--warn:#b9821f;--warnbg:#fbf1d9;--dang:#d9534f;--dangbg:#fae9e8;--blue-bg:#e9f1fb;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"PingFang TC","Microsoft JhengHei",system-ui,sans-serif;color:var(--ink);background:#e8ecf2}
+  .bar{background:var(--nav);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .bar b{font-size:14px;margin-right:6px}
+  .bar .sp{flex:1}
+  .rbtn{background:#2c4f80;color:#cfe0fb;border:1px solid #3a5e93;border-radius:7px;padding:5px 12px;font-size:13px;cursor:pointer}
+  .rbtn.on{background:#fff;color:var(--pri-d);font-weight:600}
+  .rbtn.ghost{background:transparent;border-color:#3a5e93;color:#aac4ea}
+  .hint{font-size:11.5px;color:#9fb8db}
+  .stagewrap{display:flex;justify-content:center;padding:20px 12px 40px}
+  .phone{width:380px;border:10px solid #11151c;border-radius:38px;overflow:hidden;background:#fff;box-shadow:0 14px 40px rgba(20,30,50,.22)}
+  .phone .scr{height:720px;overflow:auto;background:var(--bg);font-size:13.5px;position:relative;display:flex;flex-direction:column}
+  .browser{width:min(940px,96vw);border:1px solid #cdd4df;border-radius:11px;overflow:hidden;background:#fff;box-shadow:0 14px 40px rgba(20,30,50,.16)}
+  .browser .bbar{background:#e9edf3;padding:8px 10px;display:flex;gap:6px;align-items:center;border-bottom:1px solid #d7dde6}
+  .browser .dot{width:10px;height:10px;border-radius:50%;background:#c3cad6}
+  .browser .url{flex:1;background:#fff;border-radius:6px;font-size:11.5px;color:#5a6676;padding:4px 10px;margin-left:6px;font-family:ui-monospace,monospace}
+  .browser .scr{height:660px;overflow:auto;background:var(--bg);font-size:13.5px}
+  .body{flex:1;overflow:auto}
+  .ab{background:var(--nav);color:#fff;padding:13px 15px;font-weight:600;font-size:15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+  .ab .l{display:flex;align-items:center;gap:9px}.ab .bk{cursor:pointer;opacity:.9}
+  .ab .rt{font-size:13px;font-weight:500;opacity:.92;cursor:pointer}
+  .hdr2{background:var(--nav);color:#fff;padding:14px 15px 16px}
+  .hdr2 .h{font-size:19px;font-weight:700}.hdr2 .s{font-size:12px;opacity:.82;margin-top:3px}
+  .pad{padding:13px 14px}.sect{font-weight:700;font-size:13.5px;margin:15px 14px 7px;color:#2a3340}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin:10px 14px}
+  .muted{color:var(--mut)}.small{font-size:12px}.cen{text-align:center}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #eef1f5}.row:last-child{border-bottom:none}
+  .badge{font-size:11px;border-radius:6px;padding:2px 8px;font-weight:600;white-space:nowrap;display:inline-block}
+  .b-ok{background:var(--okbg);color:var(--ok)}.b-warn{background:var(--warnbg);color:var(--warn)}.b-blue{background:var(--blue-bg);color:var(--pri-d)}
+  .b-dang{background:var(--dangbg);color:var(--dang)}.b-gray{background:#eceff3;color:#5d6676}
+  .btn{display:block;width:calc(100% - 28px);text-align:center;background:var(--pri);color:#fff;border:none;border-radius:10px;padding:12px;font-weight:600;font-size:14px;margin:11px 14px;cursor:pointer;font-family:inherit}
+  .btn:active{transform:scale(.99)}.btn[disabled]{background:#c2ccda;cursor:not-allowed}
+  .btn.sec{background:#fff;color:var(--pri);border:1px solid #cfe0f3}.btn.dang{background:#fff;color:var(--dang);border:1px solid #f0cfce}.btn.green{background:var(--ok)}
+  .ibtn{display:inline-block;width:auto;margin:0;padding:6px 13px;font-size:12.5px;border-radius:8px}
+  .kpis{display:flex;gap:9px;padding:12px 14px}.kpi{flex:1;background:#fff;border:1px solid var(--line);border-radius:11px;padding:10px;text-align:center}
+  .kpi .n{font-size:21px;font-weight:700;color:var(--pri-d)}.kpi .l{font-size:11px;color:var(--mut);margin-top:1px}
+  .tabs{display:flex;gap:7px;padding:11px 14px;flex-wrap:wrap}
+  .pill{font-size:12px;border:1px solid #d6deea;border-radius:16px;padding:5px 12px;color:#4a5666;cursor:pointer;background:#fff}
+  .pill.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+  .tabbar{display:flex;background:#fff;border-top:1px solid var(--line)}
+  .tabbar div{flex:1;text-align:center;font-size:11px;color:#7b8493;padding:9px 0;cursor:pointer}
+  .tabbar div.on{color:var(--pri)}.tabbar .i{font-size:18px;display:block;line-height:1.3}
+  .field{margin:11px 14px}.field label{font-size:12.5px;color:#56606e;display:block;margin-bottom:5px}
+  input.ipt,select.ipt,textarea.ipt{width:100%;background:#fff;border:1px solid #d6deea;border-radius:9px;padding:10px;font-size:13.5px;font-family:inherit;color:var(--ink)}
+  textarea.ipt{height:58px;resize:none}
+  .seg{display:flex;gap:7px;flex-wrap:wrap}.seg .o{flex:1;min-width:64px;text-align:center;border:1px solid #d6deea;border-radius:9px;padding:9px;font-size:12.5px;color:#55606f;cursor:pointer;background:#fff}
+  .seg .o.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+  .stepper{display:flex;align-items:center;gap:11px}.stepper b{min-width:16px;text-align:center}
+  .sbtn{width:26px;height:26px;border-radius:50%;background:var(--pri);color:#fff;text-align:center;line-height:26px;font-size:15px;cursor:pointer;user-select:none}.sbtn.off{background:#e6eaf0;color:#aeb6c2}
+  .toggle{width:38px;height:22px;border-radius:12px;background:var(--ok);position:relative;flex:none;cursor:pointer}
+  .toggle::after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;right:2px}
+  .toggle.off{background:#cfd6df}.toggle.off::after{right:auto;left:2px}
+  .note{font-size:11.5px;color:var(--mut);margin:8px 14px;line-height:1.6}
+  .warnbox{background:var(--warnbg);border:1px solid #ecd9a8;color:#8a6414;border-radius:10px;padding:10px 12px;margin:11px 14px;font-size:12px;line-height:1.6}
+  .redbox{background:var(--dangbg);border:1px solid #f0cfce;color:#9c3733;border-radius:10px;padding:10px 12px;margin:11px 14px;font-size:12px}
+  .cal{padding:9px 8px}.calrow{display:grid;grid-template-columns:40px repeat(4,1fr);gap:5px;margin-bottom:5px}
+  .calc{font-size:10px;text-align:center;border-radius:6px;padding:9px 2px;cursor:pointer;user-select:none}
+  .calc.ok{background:#d3ead8;color:#1f6b3c}.calc.sel{background:var(--pri);color:#fff}.calc.no{background:#eef1f5;color:#aab2be;cursor:not-allowed}
+  .calc.d{background:none;color:#8a93a0;cursor:default;padding-top:9px}.calc.book{background:#dbe7fb;color:#27408b}
+  .lgd{font-size:10.5px;color:var(--mut);padding:0 14px 6px}
+  .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#1f2733;color:#fff;padding:10px 18px;border-radius:22px;font-size:13px;z-index:50;opacity:0;transition:.25s;pointer-events:none}
+  .toast.show{opacity:.95}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 14px}
+  .mtile{background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px 12px;cursor:pointer}.mtile b{font-size:13.5px}.mtile .d{font-size:11px;color:var(--mut);margin-top:2px}
+  .tbl{width:100%;font-size:12px;border-collapse:collapse}.tbl th{color:var(--mut);font-weight:600;text-align:left;padding:7px 5px;border-bottom:1px solid var(--line)}
+  .tbl td{padding:8px 5px;border-bottom:1px solid #eef1f5;vertical-align:top}
+  .stars{color:#e6a817}.link{color:var(--pri);cursor:pointer}
+  .center-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--mut);gap:6px;padding:40px}
+</style>
+
+<div class="bar">
+  <b>寶傑淨化科技 · 可操作原型</b>
+  <button class="rbtn" id="r-cust" onclick="A.login('cust')">客戶 App</button>
+  <button class="rbtn" id="r-staff" onclick="A.login('staff')">業務 App</button>
+  <button class="rbtn" id="r-admin" onclick="A.login('admin')">行政後台</button>
+  <span class="sp"></span>
+  <span class="hint">純前端原型 · 資料存記憶體 · 三端共用同一份資料（下單後可在各端看到串連）</span>
+  <button class="rbtn ghost" onclick="A.reset()">重設資料</button>
+</div>
+<div class="stagewrap"><div id="stage"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TODAY="2026-06-22";
+const nf=n=>"NT$ "+Number(n).toLocaleString();
+function seed(){
+ return {
+  payroll:{travelFee:400},
+  staff:[
+    {id:"s1",name:"李業務B",phone:"0900000098",rating:4.5,status:"online",areas:["北區","西屯區","豐原區"]},
+    {id:"s2",name:"陳業務",phone:"0900000002",rating:4.7,status:"online",areas:["北區","西屯區","豐原區"]},
+  ],
+  services:[
+    {id:"sv1",name:"基礎除蟎",desc:"1 張床 + 2 個枕頭",price:2300,dur:90,base:true,addon:false,active:true},
+    {id:"sv2",name:"冷氣清洗（分離式）",desc:"單台冷氣清洗",price:2500,dur:90,base:false,addon:true,active:true},
+    {id:"sv3",name:"加購一個枕頭",desc:"額外清一個枕頭",price:200,dur:10,base:false,addon:true,active:true},
+    {id:"sv4",name:"加購一張床",desc:"額外清一張床墊",price:1500,dur:30,base:false,addon:true,active:true},
+    {id:"sv5",name:"加購沙發",desc:"單張沙發除蟎",price:1200,dur:60,base:false,addon:true,active:true},
+  ],
+  packages:[
+    {id:"pk1",name:"基礎除蟎 8 次套組",total:8,price:16000,active:true},
+    {id:"pk2",name:"基礎除蟎 16 次套組",total:16,price:30000,active:true},
+  ],
+  promotions:[{id:"pm1",name:"Demo 後加贈 6 次",type:"free_trial",value:6,active:true}],
+  customers:[
+    {id:"c1",name:"鄭家豪",phone:"0912200003",city:"台中市",dist:"北屯區",addr:"崇德路二段100號",pkgRem:11,pkgTotal:16,manual:false},
+    {id:"c2",name:"吳承恩",phone:"0912200001",city:"台中市",dist:"西屯區",addr:"市政北二路380號",pkgRem:5,pkgTotal:8,manual:false},
+    {id:"c3",name:"李淑芬",phone:"0912100003",city:"台中市",dist:"西屯區",addr:"台灣大道三段500號",pkgRem:0,pkgTotal:0,manual:false},
+    {id:"c4",name:"周雅琪",phone:"0912100006",city:"台中市",dist:"西屯區",addr:"文心路二段88號",pkgRem:0,pkgTotal:0,manual:false},
+    {id:"me",name:"",phone:"0912345678",city:"",dist:"",addr:"",pkgRem:0,pkgTotal:0,manual:false,onboarded:false,
+      hasPets:false,hasBaby:false,allergy:"",notifyPush:true,notifySms:true},
+  ],
+  bookings:[
+    {id:"b1",cust:"c3",staff:"s2",type:"demo",date:TODAY,slot:"09:00-12:00",status:"進行中"},
+    {id:"b2",cust:"c4",staff:"s2",type:"demo",date:TODAY,slot:"12:00-15:00",status:"待出發"},
+    {id:"b3",cust:"c1",staff:"s2",type:"package",date:"2026-06-17",slot:"15:00-18:00",status:"已完成"},
+    {id:"b4",cust:"c2",staff:"s1",type:"demo",date:"2026-06-16",slot:"12:00-15:00",status:"已完成"},
+    {id:"b5",cust:"c2",staff:"s2",type:"package",date:"2026-07-29",slot:"09:00-12:00",status:"已確認"},
+    {id:"b6",cust:"c1",staff:"s1",type:"package",date:"2026-07-27",slot:"12:00-15:00",status:"已確認"},
+  ],
+  completions:[
+    {bk:"b3",hours:1.5,items:{"除蟎-枕頭":2},custNote:"已加強臥室除蟎",internalNote:"長輩同住，用低敏配方",rating:5,comment:"師傅很專業，除蟎後過敏明顯改善！",fee:400,feeStatus:"待匯出",month:"2026-06",signed:true},
+    {bk:"b4",hours:1.5,items:{"除蟎-枕頭":2},custNote:"",internalNote:"",rating:5,comment:"準時又仔細",fee:0,feeStatus:"-",month:"2026-06",signed:true},
+  ],
+  schedule:{}, scheduleSubmitted:false,
+  compensations:[], logs:[
+    {t:"2026-06-17 15:40",who:"陳業務",act:"完工回報",tgt:"鄭家豪 06-17 套組服務"},
+  ],
+};
+}
+let db=seed();
+let st={role:null,scr:"launcher",p:{},tab:""};
+const meId="me";
+const me=()=>db.customers.find(c=>c.id===meId);
+const cust=id=>db.customers.find(c=>c.id===id)||{name:"—"};
+const stf=id=>db.staff.find(s=>s.id===id)||{name:"未指派"};
+const bk=id=>db.bookings.find(b=>b.id===id);
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),1600);}
+function log(act,tgt){db.logs.unshift({t:TODAY+" "+new Date().toTimeString().slice(0,5),who:st.role==="admin"?"行政人員":st.role==="staff"?"陳業務":(me().name||"客戶"),act,tgt});}
+
+/* ---------- UI helpers ---------- */
+const esc=s=>(s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+function ab(title,back,right){return `<div class="ab"><div class="l">${back?`<span class="bk" onclick="A.go('${back}')">‹</span>`:""}<span>${title}</span></div>${right||""}</div>`;}
+function badge(t,c){return `<span class="badge ${c}">${t}</span>`;}
+function statusBadge(s){const m={"進行中":"b-blue","待出發":"b-gray","待派工":"b-gray","已確認":"b-blue","已完成":"b-ok","已取消":"b-dang","棄單":"b-dang"};return badge(s,m[s]||"b-gray");}
+function tabbarC(){const t=[["home","⌂","首頁"],["myBookings","▦","我的預約"],["profile","◔","個人"]];return `<div class="tabbar">${t.map(x=>`<div class="${st.scr===x[0]?'on':''}" onclick="A.go('${x[0]}')"><span class="i">${x[1]}</span>${x[2]}</div>`).join("")}</div>`;}
+function tabbarS(){const t=[["shome","▤","派工"],["schedule","▦","班表"],["serviceArea","◎","服務區"],["sme","◔","個人"]];return `<div class="tabbar">${t.map(x=>`<div class="${st.scr===x[0]?'on':''}" onclick="A.go('${x[0]}')"><span class="i">${x[1]}</span>${x[2]}</div>`).join("")}</div>`;}
+function stars(n){return `<span class="stars">${"★".repeat(n)}${"☆".repeat(5-n)}</span>`;}
+const SLOTS=["09:00-12:00","12:00-15:00","15:00-18:00","18:00-20:00"];
+
+/* ---------- render ---------- */
+function render(){
+  ["cust","staff","admin"].forEach(r=>{const b=document.getElementById("r-"+r);if(b)b.classList.toggle("on",st.role===r);});
+  const stage=document.getElementById("stage");
+  if(st.scr==="launcher"||st.scr==="otp"){stage.innerHTML=`<div class="phone"><div class="scr">${SCREENS[st.scr]()}</div></div>`;return;}
+  const body=(SCREENS[st.scr]||(()=>"找不到畫面"))();
+  if(st.role==="admin"){
+    stage.innerHTML=`<div class="browser"><div class="bbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">baojay-admin-stg.vercel.app/${st.scr}</span></div><div class="scr">${body}</div></div>`;
+  }else{
+    const tb=st.role==="cust"?tabbarC():tabbarS();
+    stage.innerHTML=`<div class="phone"><div class="scr"><div class="body">${body}</div>${tb}</div></div>`;
+  }
+}
+const A={
+  login(role){st.role=role;st.p={};
+    if(role==="cust"){st.scr=me().onboarded?"home":"onboarding";}
+    else if(role==="staff"){st.scr="shome";st.p.date=TODAY;}
+    else{st.scr="ahome";}
+    render();},
+  reset(){db=seed();st={role:null,scr:"launcher",p:{},tab:""};render();toast("資料已重設");},
+  go(s,p){st.scr=s;if(p)Object.assign(st.p,p);render();},
+  set(k,v){st.p[k]=v;render();},
+};
+
+/* =========================================================
+   SCREENS
+========================================================= */
+const SCREENS={};
+
+/* ---- launcher ---- */
+SCREENS.launcher=()=>`
+  <div style="padding:46px 22px;text-align:center">
+   <div style="width:60px;height:60px;border-radius:16px;background:var(--pri);color:#fff;font-size:27px;font-weight:700;line-height:60px;margin:0 auto">寶</div>
+   <div style="font-weight:700;font-size:19px;margin-top:12px">寶傑淨化科技</div>
+   <div class="muted small">可操作原型 · 選擇身份開始體驗</div></div>
+  <div class="card" onclick="A.go('otp',{role:'cust'})" style="cursor:pointer"><b>客戶 App</b><div class="muted small">預約免費體驗 / 套組服務、查詢、評分</div></div>
+  <div class="card" onclick="A.go('otp',{role:'staff'})" style="cursor:pointer"><b>業務 App</b><div class="muted small">今日派工、班表、完工回報、棄單</div></div>
+  <div class="card" onclick="A.go('otp',{role:'admin'})" style="cursor:pointer"><b>行政後台</b><div class="muted small">調度、CRM、報表、權限、推播</div></div>
+  <div class="note cen">也可用上方控制列隨時切換身份。三端共用同一份記憶體資料。</div>`;
+SCREENS.otp=()=>{
+  const r=st.p.role,lbl={cust:"客戶",staff:"業務",admin:"行政"}[r],ph={cust:"0912345678",staff:"0900000002",admin:"0900000003"}[r];
+  return `<div style="padding:34px 18px 6px;text-align:center">
+   <div style="width:54px;height:54px;border-radius:14px;background:var(--pri);color:#fff;font-size:24px;font-weight:700;line-height:54px;margin:0 auto">寶</div>
+   <div style="font-weight:700;font-size:17px;margin-top:12px">寶傑淨化科技</div><div class="muted small">手機號碼登入（${lbl}）</div></div>
+   <div class="card"><div class="field" style="margin:0 0 8px"><label>手機號碼</label><input class="ipt" id="otp-ph" value="${ph}"></div>
+   <div class="field" style="margin:0"><label>驗證碼（測試固定 000000）</label><input class="ipt" id="otp-code" value="000000"></div></div>
+   <button class="btn" onclick="A.login('${r}')">驗證並登入</button>
+   <div class="note cen">測試環境不真的發簡訊，輸入 000000 即可。<br>Apple / Google 登入（即將開放）</div>`;
+};
+
+/* ===================== CUSTOMER ===================== */
+SCREENS.onboarding=()=>{
+  const m=me();
+  return ab("新手引導")+`
+  <div class="cen" style="padding:14px">👋<div style="font-weight:700">歡迎加入寶傑淨化</div><div class="muted small">請填寫基本資料，以便為您安排到府服務</div></div>
+  <div class="sect">基本資料</div>
+  <div class="field"><label>姓名 *</label><input class="ipt" id="ob-name" placeholder="例：陳小明" value="${esc(m.name)}"></div>
+  <div class="field"><label>服務地址 *</label>
+    <div class="seg" style="margin-bottom:7px">
+      <select class="ipt" id="ob-city"><option value="">選擇縣市</option>${["台北市","新北市","桃園市","台中市","台南市","高雄市"].map(c=>`<option ${m.city===c?"selected":""}>${c}</option>`).join("")}</select>
+      <select class="ipt" id="ob-dist"><option value="">行政區</option>${["中區","東區","南區","西區","北區","北屯區","西屯區","南屯區"].map(d=>`<option ${m.dist===d?"selected":""}>${d}</option>`).join("")}</select>
+    </div>
+    <input class="ipt" id="ob-addr" placeholder="例：文心路三段100號" value="${esc(m.addr)}"></div>
+  <div class="sect">通知偏好</div>
+  <div class="card"><div class="row"><div><b>推播通知</b><div class="muted small">App 內即時通知</div></div><div class="toggle ${m.notifyPush?"":"off"}" onclick="A.tgOb('notifyPush',this)"></div></div>
+  <div class="row"><div><b>簡訊通知</b><div class="muted small">重要提醒以簡訊補發</div></div><div class="toggle ${m.notifySms?"":"off"}" onclick="A.tgOb('notifySms',this)"></div></div></div>
+  <button class="btn" onclick="A.saveOnboarding()">開始使用</button>
+  <div class="note">其他服務資訊（寵物、嬰幼兒等）將在預約時填寫</div>`;
+};
+A.tgOb=(k,el)=>{me()[k]=!me()[k];el.classList.toggle("off");};
+A.saveOnboarding=()=>{const m=me();const n=val("ob-name"),c=val("ob-city"),d=val("ob-dist"),a=val("ob-addr");
+  if(!n||!c||!d||!a){toast("請填寫姓名與完整地址");return;}
+  m.name=n;m.city=c;m.dist=d;m.addr=a;m.onboarded=true;log("完成新手引導",n);A.go("home");toast("歡迎，"+n+"！");};
+function val(id){const e=document.getElementById(id);return e?e.value.trim():"";}
+
+SCREENS.home=()=>{
+  const m=me();const up=db.bookings.filter(b=>b.cust===meId&&["待派工","已確認","待出發","進行中"].includes(b.status)).sort((a,b)=>a.date<b.date?-1:1)[0];
+  let cardHtml;
+  if(up){const d=up.date.slice(5).replace("-","/");cardHtml=`<div class="card" style="background:var(--nav);color:#fff;border:none;cursor:pointer" onclick="A.go('myBookings')">
+    ${badge("免費體驗 · 已預約","b-blue")}<div style="font-weight:700;font-size:18px;margin:8px 0 2px">${d}　${up.slot}</div>
+    <div class="small" style="opacity:.85">業務將準時到府服務 · ${stf(up.staff).name}</div>
+    <div style="text-align:right;opacity:.85;margin-top:6px" class="small">點擊查看詳情 →</div></div>`;}
+  else{cardHtml=`<div class="card" style="background:var(--nav);color:#fff;border:none">
+    ${badge("免費 · 限新客戶一次","b-blue")}<div style="font-weight:700;font-size:18px;margin:8px 0 2px">首次體驗 · 免費領取</div>
+    <div class="small" style="opacity:.85">專業除蟎服務，免費體驗寶傑的清潔品質</div>
+    <button class="btn" style="margin:11px 0 0;width:100%" onclick="A.startDemo()">立即預約</button></div>`;}
+  return ab("首頁",null,`<span class="rt" onclick="A.go('notifications')">🔔</span>`)+`
+   <div class="pad"><div style="font-weight:700;font-size:16px">${esc(m.name)||"您"} 您好</div><div class="muted small">歡迎使用寶傑淨化科技</div></div>
+   ${cardHtml}
+   <div class="card" onclick="A.go('history')" style="cursor:pointer"><b style="color:var(--pri-d)">我的服務紀錄 ›</b><div class="muted small">查看歷次完工服務與評分</div></div>
+   <div class="card" onclick="A.go('bkService')" style="cursor:pointer"><b style="color:var(--pri-d)">預約套組 / 一般服務 ›</b><div class="muted small">基礎除蟎可加購、可指定業務</div></div>
+   <div class="card" onclick="A.go('compensations')" style="cursor:pointer"><b style="color:var(--pri-d)">補償服務 ›</b><div class="muted small">因業務棄單獲得的免費補服務</div></div>`;
+};
+A.startDemo=()=>{st.p.sel={type:"demo",date:null,slot:null,hasPets:false,hasBaby:false,note:"",addons:{}};A.go("demoCal");};
+
+SCREENS.demoCal=()=>{
+  const sel=st.p.sel;const dates=futureDates(7);
+  return ab("預約 Demo","home")+`<div class="pad"><b>選擇您要的時段</b><div class="muted small">免費體驗 · 一張床 + 兩個枕頭</div></div>
+   <div class="lgd">▣ 可預約　▣ 已選　▢ 已滿</div>
+   <div class="cal">${dates.map(d=>`<div class="calrow"><div class="calc d">${d.md}<br>${d.wd}</div>${SLOTS.map(s=>{
+      const full=(d.i===0&&s===SLOTS[3]);const on=sel.date===d.iso&&sel.slot===s;
+      return `<div class="calc ${full?'no':on?'sel':'ok'}" ${full?"":`onclick="A.pickSlot('${d.iso}','${s}')"`}>${s.slice(0,5)}<br>${s.slice(6)}</div>`;}).join("")}</div>`).join("")}</div>
+   ${sel.date?`<div class="note">已選 ${sel.date.slice(5)} ${sel.slot}</div>`:`<div class="note muted">尚未選擇時段</div>`}
+   <button class="btn" ${sel.date?"":"disabled"} onclick="A.go('demoExtra')">下一步</button>`;
+};
+A.pickSlot=(d,s)=>{st.p.sel.date=d;st.p.sel.slot=s;render();};
+SCREENS.demoExtra=()=>{const sel=st.p.sel;return ab("預約 Demo","demoCal")+`
+   <div class="pad"><b>家裡狀況（選填）</b><div class="muted small">讓業務員提前做好準備，提供更貼心的服務</div></div>
+   <div class="card"><div class="row"><div>🐾 <b>家中有寵物</b><div class="muted small">如貓、狗等毛小孩</div></div><div class="toggle ${sel.hasPets?"":"off"}" onclick="A.tgSel('hasPets',this)"></div></div>
+   <div class="row"><div>👶 <b>家中有嬰幼兒</b><div class="muted small">2 歲以下嬰幼兒</div></div><div class="toggle ${sel.hasBaby?"":"off"}" onclick="A.tgSel('hasBaby',this)"></div></div></div>
+   <div class="field"><label>過敏或特殊備註</label><textarea class="ipt" id="ex-note" placeholder="例：對某些清潔劑過敏…（可留空）">${esc(sel.note)}</textarea></div>
+   <button class="btn" onclick="A.toConfirm()">下一步：確認預約</button>
+   <div class="note cen link" onclick="A.toConfirm()">略過，直接確認</div>`;};
+A.tgSel=(k,el)=>{st.p.sel[k]=!st.p.sel[k];el.classList.toggle("off");};
+A.toConfirm=()=>{const n=document.getElementById("ex-note");if(n)st.p.sel.note=n.value;A.go("demoConfirm");};
+SCREENS.demoConfirm=()=>{const sel=st.p.sel,m=me();return ab("確認預約","demoExtra")+`
+   <div class="card"><b>確認預約</b>
+   <div class="row"><span class="muted">服務內容</span><b>基礎除蟎體驗</b></div>
+   <div class="row"><span class="muted">包含項目</span><b>一張床 + 兩個枕頭</b></div>
+   <div class="row"><span class="muted">費用</span><b style="color:var(--warn)">免費</b></div>
+   <div class="row"><span class="muted">日期</span><b>${sel.date.slice(5).replace("-"," 月 ")} 日</b></div>
+   <div class="row"><span class="muted">時段</span><b>${sel.slot}</b></div>
+   <div class="row"><span class="muted">服務人員</span><b>系統指派</b></div>
+   <div class="row"><span class="muted">服務地址</span><b>${m.city}${m.dist}${esc(m.addr)}</b></div></div>
+   <div class="note">確認後業務會在預約時段前與您聯絡確認地址及細節。</div>
+   <button class="btn" onclick="A.submitDemo()">確認預約</button>`;};
+A.submitDemo=()=>{const sel=st.p.sel,m=me();
+  const assigned=db.staff.find(s=>s.areas.includes(m.dist))||db.staff[1];
+  const id="b"+Date.now();
+  db.bookings.push({id,cust:meId,staff:assigned.id,type:"demo",date:sel.date,slot:sel.slot,status:"已確認",hasPets:sel.hasPets,hasBaby:sel.hasBaby,note:sel.note,autoAssigned:true});
+  log("客戶建立免費體驗預約",(m.name||"客戶")+" "+sel.date.slice(5)+" "+sel.slot);
+  st.p.lastStaff=assigned.name;A.go("demoSuccess");};
+SCREENS.demoSuccess=()=>{const sel=st.p.sel;return ab("預約成功")+`
+   <div class="cen" style="padding:30px 16px"><div style="width:60px;height:60px;border-radius:50%;background:var(--ok);color:#fff;font-size:31px;line-height:60px;margin:0 auto">✓</div>
+   <div style="font-weight:700;font-size:18px;margin-top:12px">預約成功！</div><div class="muted small">我們已為您保留時段，業務員將準時為您服務</div></div>
+   <div class="card"><b>${sel.date.slice(5).replace("-"," 月 ")} 日</b><div class="muted small">${sel.slot}</div><div class="muted small">已自動指派業務：${st.p.lastStaff}</div></div>
+   <div class="warnbox">已同步到行政後台與業務派工清單 — 切到「行政後台 / 業務 App」可看到這筆。</div>
+   <button class="btn" onclick="A.go('myBookings')">查看我的預約</button>
+   <button class="btn sec" onclick="A.go('home')">回首頁</button>`;};
+
+SCREENS.bkService=()=>{const m=me();const base=db.services.find(s=>s.base);const addons=db.services.filter(s=>s.addon&&s.active);
+  if(!st.p.sel||st.p.sel.type!=="service")st.p.sel={type:"service",addons:{},date:null,slot:null,female:false};
+  const sel=st.p.sel;let total=base.price;addons.forEach(a=>total+=(sel.addons[a.id]||0)*a.price);
+  return ab("選擇服務","home")+
+   (m.pkgRem>0?`<div class="warnbox">您的套組剩餘 ${m.pkgRem} 次（共 ${m.pkgTotal} 次）</div>`:`<div class="redbox">套組次數已用完，請聯絡行政補充</div>`)+`
+   <div class="sect">基礎服務</div>
+   <div class="card"><div class="row" style="border:none"><div><b>${base.name}服務</b><div class="muted small">${base.desc}（必選）</div></div><b>${nf(base.price)}</b></div></div>
+   <div class="sect">加購服務（選填）</div>
+   <div class="card">${addons.map(a=>{const q=sel.addons[a.id]||0;return `<div class="row"><div><b>${a.name}</b><div class="muted small">${nf(a.price)}</div></div>
+     <div class="stepper"><span class="sbtn ${q?"":"off"}" onclick="A.addon('${a.id}',-1)">−</span><b>${q}</b><span class="sbtn" onclick="A.addon('${a.id}',1)">+</span></div></div>`;}).join("")}</div>
+   <div class="sect">服務人員偏好（選填）</div>
+   <div class="card"><div class="muted small">公司鼓勵「不指定」——系統自動派工更快</div>
+   <div class="row"><span>希望女性業務</span><div class="toggle ${sel.female?"":"off"}" onclick="A.tgSel('female',this)"></div></div></div>
+   <div class="card"><div class="row" style="border:none"><div><span class="muted small">預估費用</span> ${badge("試算 · 未含金流","b-warn")}</div><b style="font-size:17px">${nf(total)}</b></div>
+   <div class="muted small">※ 實際費用以師傅現場確認為準（BL-#024）</div></div>
+   <button class="btn" onclick="A.serviceToCal()">下一步：選擇時段</button>`;};
+A.addon=(id,d)=>{const a=st.p.sel.addons;a[id]=Math.max(0,(a[id]||0)+d);render();};
+A.serviceToCal=()=>{st.p.sel.date=null;st.p.sel.slot=null;st.p.sel._svc=true;A.go("demoCal2");};
+SCREENS.demoCal2=()=>{const sel=st.p.sel;const dates=futureDates(7);
+  return ab("選擇時段","bkService")+`<div class="pad"><b>選擇您要的時段</b><div class="muted small">套組 / 一般服務</div></div>
+   <div class="cal">${dates.map(d=>`<div class="calrow"><div class="calc d">${d.md}<br>${d.wd}</div>${SLOTS.map(s=>{const on=sel.date===d.iso&&sel.slot===s;return `<div class="calc ${on?'sel':'ok'}" onclick="A.pickSlot('${d.iso}','${s}')">${s.slice(0,5)}<br>${s.slice(6)}</div>`;}).join("")}</div>`).join("")}</div>
+   <button class="btn" ${sel.date?"":"disabled"} onclick="A.submitService()">確認預約</button>`;};
+A.submitService=()=>{const sel=st.p.sel,m=me();const assigned=db.staff.find(s=>s.areas.includes(m.dist))||db.staff[0];
+  db.bookings.push({id:"b"+Date.now(),cust:meId,staff:assigned.id,type:"package",date:sel.date,slot:sel.slot,status:"已確認",autoAssigned:!sel.female});
+  if(m.pkgRem>0)m.pkgRem--;log("客戶建立套組服務預約",(m.name||"客戶")+" "+sel.date.slice(5));toast("預約成功！已指派 "+assigned.name);A.go("myBookings");};
+
+SCREENS.myBookings=()=>{const tab=st.p.mbTab||"up";
+  const all=db.bookings.filter(b=>b.cust===meId);
+  const f={up:b=>["待派工","已確認","待出發"].includes(b.status),ing:b=>b.status==="進行中",done:b=>["已完成","已取消"].includes(b.status)}[tab];
+  const list=all.filter(f).sort((a,b)=>a.date<b.date?1:-1);
+  const body=list.length?list.map(b=>{const sBadge=b.status==="已確認"?badge("待服務","b-warn"):statusBadge(b.status);
+    return `<div class="card">${badge(b.type==="demo"?"免費體驗":"套組服務","b-blue")} ${sBadge}
+    <div style="font-weight:700;margin:7px 0 0">${b.date.slice(5).replace("-"," 月 ")} 日　${b.slot}</div>
+    <div class="muted small">${cust(b.cust).city}${cust(b.cust).dist}${esc(cust(b.cust).addr)}</div>
+    <div class="muted small">業務：${stf(b.staff).name}</div>
+    ${["待派工","已確認"].includes(b.status)?`<button class="btn dang" style="margin:9px 0 0" onclick="A.cancelBk('${b.id}')">取消預約</button>`:""}
+    ${b.status==="已完成"?`<button class="btn sec" style="margin:9px 0 0" onclick="A.go('history')">查看完工紀錄</button>`:""}</div>`;}).join("")
+    :`<div class="center-empty">📭<div>此分類沒有預約</div></div>`;
+  return ab("我的預約")+`<div class="tabs">
+   <span class="pill ${tab==='up'?'on':''}" onclick="A.set('mbTab','up')">即將到來</span>
+   <span class="pill ${tab==='ing'?'on':''}" onclick="A.set('mbTab','ing')">進行中</span>
+   <span class="pill ${tab==='done'?'on':''}" onclick="A.set('mbTab','done')">已完成</span></div>${body}`;};
+A.cancelBk=id=>{const b=bk(id);b.status="已取消";log("客戶取消預約",cust(b.cust).name+" "+b.date.slice(5));toast("已取消預約");render();};
+
+SCREENS.history=()=>{const mine=db.completions.filter(c=>bk(c.bk)&&bk(c.bk).cust===meId);
+  const body=mine.length?mine.map(c=>{const b=bk(c.bk);return `<div class="card">
+    <div class="row" style="border:none"><b>${b.type==="demo"?"基礎除蟎體驗":"基礎除蟎"}</b>${c.rating?stars(c.rating):`<span class="link" onclick="A.go('rate',{bk:'${c.bk}'})">前往評分 ›</span>`}</div>
+    <div class="muted small">${b.date} ${b.slot}</div>
+    ${c.custNote?`<div class="small" style="margin-top:4px">服務備註：${esc(c.custNote)}</div>`:""}
+    <div class="muted small" style="margin-top:3px">＊內部記錄不會顯示給客戶</div></div>`;}).join("")
+    :`<div class="center-empty">📋<div>還沒有服務紀錄</div><div class="small">完成服務後，紀錄將出現在這裡</div></div>`;
+  return ab("服務紀錄","home")+body;};
+SCREENS.rate=()=>{const c=db.completions.find(x=>x.bk===st.p.bk);return ab("評分","history")+`
+   <div class="cen" style="padding:20px">⭐<div style="font-weight:700">為這次服務評分</div><div class="muted small">${stf(bk(c.bk).staff).name} 師傅完成服務</div></div>
+   <div class="card cen"><div id="rate-stars" style="font-size:34px;color:#e6a817;cursor:pointer">${[1,2,3,4,5].map(n=>`<span onclick="A.setRate(${n})">☆</span>`).join("")}</div></div>
+   <div class="field"><label>留言（選填）</label><textarea class="ipt" id="rate-cmt"></textarea></div>
+   <button class="btn" onclick="A.submitRate()">送出評分</button>`;};
+A.setRate=n=>{st.p.rate=n;const el=document.getElementById("rate-stars");el.innerHTML=[1,2,3,4,5].map(i=>`<span onclick="A.setRate(${i})">${i<=n?"★":"☆"}</span>`).join("");};
+A.submitRate=()=>{const c=db.completions.find(x=>x.bk===st.p.bk);if(!st.p.rate){toast("請點選星等");return;}c.rating=st.p.rate;c.comment=val("rate-cmt");
+  const s=stf(bk(c.bk).staff);const rs=db.completions.filter(x=>bk(x.bk)&&bk(x.bk).staff===s.id&&x.rating);s.rating=(rs.reduce((a,b)=>a+b.rating,0)/rs.length).toFixed(1);
+  log("客戶評分",s.name+" "+st.p.rate+"★");toast("感謝您的評分！");A.go("history");};
+
+SCREENS.profile=()=>{const m=me();return ab("個人",null,`<span class="rt" onclick="A.go('home')">完成</span>`)+`
+   <div class="sect">基本資料</div>
+   <div class="card"><div class="row"><span class="muted">姓名</span><b>${esc(m.name)}</b></div>
+   <div class="row"><span class="muted">手機號碼</span><b>${m.phone}</b></div>
+   <div class="row"><span class="muted">服務地址</span><b>${m.city}${m.dist}${esc(m.addr)}</b></div>
+   <div class="row"><span class="muted">套組剩餘</span><b>${m.pkgRem>0?m.pkgRem+" / "+m.pkgTotal+" 次":"無"}</b></div></div>
+   <div class="sect">家庭環境 <span class="muted small">供業務到府服務前確認</span></div>
+   <div class="card"><div class="row"><span>家中有寵物</span><div class="toggle ${m.hasPets?"":"off"}" onclick="A.tgMe('hasPets',this)"></div></div>
+   <div class="row"><span>家中有嬰幼兒</span><div class="toggle ${m.hasBaby?"":"off"}" onclick="A.tgMe('hasBaby',this)"></div></div></div>
+   <div class="sect">通知偏好</div>
+   <div class="card"><div class="row"><span>推播通知</span><div class="toggle ${m.notifyPush?"":"off"}" onclick="A.tgMe('notifyPush',this)"></div></div>
+   <div class="row"><span>簡訊通知</span><div class="toggle ${m.notifySms?"":"off"}" onclick="A.tgMe('notifySms',this)"></div></div></div>
+   <button class="btn dang" onclick="A.go('launcher')">🚪 登出</button>`;};
+A.tgMe=(k,el)=>{me()[k]=!me()[k];el.classList.toggle("off");toast("已更新");};
+SCREENS.notifications=()=>ab("通知","home")+`<div class="center-empty">🔔<div>目前沒有通知</div><div class="small">預約確認、服務提醒都會出現在這裡</div></div>`;
+SCREENS.compensations=()=>{const list=db.compensations.filter(c=>c.cust===meId);
+  return ab("補償服務","home")+`<div class="note">因業務棄單而獲得的免費補一次服務記錄</div>`+
+  (list.length?list.map(c=>`<div class="card">${badge("免費補服務","b-ok")}<div class="small" style="margin-top:5px">原因：${esc(c.reason)}</div><div class="muted small">取得日：${c.date}</div></div>`).join("")
+   :`<div class="card muted cen">目前沒有補償服務記錄</div>`);};
+
+/* ===================== STAFF ===================== */
+SCREENS.shome=()=>{const date=st.p.date||TODAY;const mine=db.bookings.filter(b=>b.staff==="s2"&&b.date===date&&!["已取消","棄單"].includes(b.status));
+  const done=mine.filter(b=>b.status==="已完成").length,wait=mine.filter(b=>b.status==="待出發").length;
+  const list=mine.length?mine.map((b,i)=>`<div class="card" onclick="A.go('dispatchDetail',{bk:'${b.id}'})" style="cursor:pointer">
+    <div class="row" style="border:none"><span class="badge b-warn">第 ${i+1}/${mine.length} 場</span><b>${b.slot}</b>${statusBadge(b.status)}</div>
+    <div class="muted small">📍 ${cust(b.cust).dist}　👤 ${cust(b.cust).name}　· ${b.type==="demo"?"示範服務":"會員服務"}</div></div>`).join("")
+    :`<div class="center-empty">✅<div>這天沒有派工</div><div class="small">好好休息！</div></div>`;
+  return ab("今日派工",null,`<span class="rt">🔔</span>`)+`<div class="pad"><div class="muted small">陳業務</div></div>
+   <div class="card" style="margin-bottom:0"><div class="row" style="border:none;padding:4px 0"><span class="link" onclick="A.shift(-1)">‹ 前一天</span><b>${date}</b><span class="link" onclick="A.shift(1)">後一天 ›</span></div></div>
+   <div class="kpis"><div class="kpi"><div class="n">${mine.length}</div><div class="l">當日派工</div></div><div class="kpi"><div class="n">${wait}</div><div class="l">待出發</div></div><div class="kpi"><div class="n">${done}</div><div class="l">已完成</div></div></div>
+   ${list}`;};
+A.shift=d=>{const dt=new Date((st.p.date||TODAY)+"T00:00");dt.setDate(dt.getDate()+d);st.p.date=dt.toISOString().slice(0,10);render();};
+SCREENS.dispatchDetail=()=>{const b=bk(st.p.bk);const isToday=b.date===TODAY;return ab("派工詳情","shome")+`
+   <div class="card"><div class="row" style="border:none"><b>${b.slot}</b>${statusBadge(b.status)}</div><div class="muted small">服務日期：${b.date}　服務類型：${b.type==="demo"?"示範服務":"會員服務"}</div></div>
+   ${isToday?`<div class="card"><div class="row"><span class="muted">客戶</span><b>${cust(b.cust).name}</b></div>
+     <div class="row"><span class="muted">電話</span><b>${cust(b.cust).phone} 📞</b></div>
+     <div class="row"><span class="muted">地址</span><b>${cust(b.cust).city}${cust(b.cust).dist}${esc(cust(b.cust).addr)}</b></div>
+     ${b.hasPets||b.hasBaby?`<div class="row"><span class="muted">家中狀況</span><b>${[b.hasPets?"有寵物":"",b.hasBaby?"有嬰幼兒":""].filter(Boolean).join("、")}</b></div>`:""}</div>`
+    :`<div class="warnbox">🔒 詳細資訊服務當天才顯示　·　今天並非服務日<br><span class="muted">客戶電話與完整地址會在服務當天、到場 1 公里內解鎖（手機）。</span></div>`}
+   <div class="sect">服務概要</div>
+   <div class="card"><div class="row"><span class="muted">服務日期</span><b>${b.date}</b></div><div class="row"><span class="muted">服務時段</span><b>${b.slot}</b></div><div class="row"><span class="muted">預約狀態</span><b>${b.status}</b></div></div>
+   ${["待出發","進行中","已確認"].includes(b.status)?`<button class="btn green" onclick="A.startCompletion('${b.id}')">提交完工回報</button>
+     <button class="btn dang" onclick="A.go('abandon',{bk:'${b.id}'})">棄單</button>`:""}
+   <button class="btn sec" onclick="A.go('shome')">返回派工列表</button>`;};
+A.startCompletion=id=>{st.p.comp={items:{"除蟎-單人床":0,"除蟎-雙人床":0,"除蟎-枕頭":2,"除蟎-沙發":0,"冷氣清洗":0},hours:1.5,custNote:"",internalNote:"",signed:false};st.p.bk=id;A.go("completion");};
+SCREENS.completion=()=>{const c=st.p.comp;return ab("完工回報","dispatchDetail")+`
+   <div class="note">請確認服務項目、照片及客戶簽名後提交</div>
+   <div class="sect">服務項目</div>
+   <div class="card">${Object.keys(c.items).map(k=>`<div class="row"><span>${k}</span><div class="stepper"><span class="sbtn ${c.items[k]?"":"off"}" onclick="A.compItem('${k}',-1)">−</span><b>${c.items[k]}</b><span class="sbtn" onclick="A.compItem('${k}',1)">+</span></div></div>`).join("")}</div>
+   <div class="sect">完工照片 <span class="muted small">0 / 10</span></div>
+   <div class="card cen muted" style="border-style:dashed;cursor:pointer" onclick="toast('原型示意：開啟相機/相簿')">＋ 新增照片</div>
+   <div class="sect">客戶簽名</div>
+   <div class="card cen ${c.signed?"":"muted"}" style="border-style:dashed;height:54px;line-height:34px;cursor:pointer" onclick="A.sign()">${c.signed?"✓ 已簽名（"+(cust(bk(st.p.bk).cust).name)+"）":"請客戶在此觸控簽名"}</div>
+   <div class="field"><label>實際服務時數（小時）</label><select class="ipt" id="cp-hours">${[1,1.5,2,2.5,3].map(h=>`<option ${c.hours===h?"selected":""}>${h}</option>`).join("")}</select></div>
+   <div class="field"><label>服務備註（客戶可見）</label><textarea class="ipt" id="cp-cust" placeholder="備註將顯示在客戶服務紀錄中">${esc(c.custNote)}</textarea></div>
+   <div class="field"><label>內部記錄（客戶看不到）</label><textarea class="ipt" id="cp-int" placeholder="僅業務與行政可見">${esc(c.internalNote)}</textarea></div>
+   <button class="btn green" onclick="A.submitCompletion()">提交完工回報</button>`;};
+A.compItem=(k,d)=>{const c=st.p.comp;c.items[k]=Math.max(0,c.items[k]+d);render();};
+A.sign=()=>{st.p.comp.signed=!st.p.comp.signed;render();};
+A.submitCompletion=()=>{const c=st.p.comp,b=bk(st.p.bk);c.hours=parseFloat(val("cp-hours")||"1.5");c.custNote=val("cp-cust");c.internalNote=val("cp-int");
+  if(!c.signed){toast("請先取得客戶簽名");return;}
+  b.status="已完成";const fee=b.type==="demo"?0:db.payroll.travelFee;
+  db.completions.push({bk:b.id,hours:c.hours,items:c.items,custNote:c.custNote,internalNote:c.internalNote,rating:0,comment:"",fee,feeStatus:fee?"待匯出":"-",month:b.date.slice(0,7),signed:true});
+  log("業務完工回報",cust(b.cust).name+" "+b.date.slice(5)+(fee?" 車馬費"+fee:" Demo無車馬費"));
+  toast("完工已送出！"+(fee?"車馬費 "+nf(fee):"Demo 無車馬費"));A.go("shome");};
+SCREENS.abandon=()=>{const reasons=["突發身體不適","家庭緊急事故","交通工具故障","臨時無法出行","其他"];const sel=st.p.abReason;
+  return ab("棄單","dispatchDetail")+`<div class="redbox"><b>確認棄單</b><br>棄單後此預約將自動推播給其他業務，並記錄原因（行政後台可查詢）。客戶將獲得一次免費補償服務。</div>
+   <div class="sect">棄單原因 *</div>
+   <div class="card">${reasons.map(r=>`<div class="row" onclick="A.set('abReason','${r}')" style="cursor:pointer"><span>${sel===r?"◉":"◯"} ${r}</span></div>`).join("")}</div>
+   <button class="btn dang" ${sel?"":"disabled"} onclick="A.doAbandon()">確認棄單</button>
+   <button class="btn sec" onclick="A.go('dispatchDetail')">取消，返回派工詳情</button>`;};
+A.doAbandon=()=>{const b=bk(st.p.bk);b.status="棄單";db.compensations.push({cust:b.cust,reason:"業務棄單："+st.p.abReason,date:TODAY});
+  log("業務棄單",cust(b.cust).name+"｜"+st.p.abReason+"（已推播補單、客戶獲補償）");st.p.abReason=null;toast("已棄單，系統推播補單給其他業務");A.go("shome");};
+SCREENS.schedule=()=>{const days=[1,2,3,4,5,6];const sc=db.schedule;
+  return ab("班表")+`<div class="pad cen"><b>2026-07 班表</b></div>
+   <div class="warnbox">📅 距離提交截止（25 日）還剩 4 天　·　${db.scheduleSubmitted?"已提交 ✓":"尚未提交"}</div>
+   <div class="lgd">▣ 開放接單　▢ 未開放（點格切換）</div>
+   <div class="cal">${days.map(d=>`<div class="calrow"><div class="calc d">7/${d}</div>${SLOTS.map((s,j)=>{const key=d+"-"+j;const open=sc[key]!==false;return `<div class="calc ${open?'ok':'no'}" style="cursor:pointer" onclick="A.tgSlot('${key}')">${open?"✓":"–"}</div>`;}).join("")}</div>`).join("")}</div>
+   <button class="btn" onclick="A.submitSchedule()">提交班表</button>
+   <div class="note">未在截止日前提交班表，本月將不接任何派工。</div>`;};
+A.tgSlot=key=>{db.schedule[key]=db.schedule[key]===false?true:false;render();};
+A.submitSchedule=()=>{db.scheduleSubmitted=true;log("業務提交班表","2026-07");toast("班表已提交");render();};
+SCREENS.serviceArea=()=>ab("服務區")+`<div class="pad"><div class="muted small">陳業務 的服務範圍</div></div>
+   <div class="note">服務區域由行政人員設定，如需新增或調整，請聯絡行政。</div>
+   <div class="card"><div class="row" style="border:none"><b>台中市</b>${badge("3 區","b-blue")}</div><div style="margin-top:7px">${["北區","西屯區","豐原區"].map(d=>`<span class="pill" style="cursor:default">${d}</span> `).join("")}</div></div>`;
+SCREENS.sme=()=>{const cs=db.completions.filter(c=>bk(c.bk)&&bk(c.bk).staff==="s2");const mFee=cs.filter(c=>c.month===TODAY.slice(0,7)).reduce((a,b)=>a+b.fee,0);const tFee=cs.reduce((a,b)=>a+b.fee,0);
+  return ab("個人中心")+`<div class="card"><b>陳業務</b> ${badge("業務人員","b-blue")}<div class="muted small">電話 0900000002 · 服務區域 台中市</div></div>
+   <div class="kpis"><div class="kpi"><div class="n">${cs.length}</div><div class="l">累計完工</div></div><div class="kpi"><div class="n">${cs.filter(c=>c.month===TODAY.slice(0,7)).length}</div><div class="l">本月完工</div></div><div class="kpi"><div class="n">${stf("s2").rating}</div><div class="l">★平均</div></div></div>
+   <div class="kpis"><div class="kpi"><div class="n" style="font-size:16px">${nf(mFee)}</div><div class="l">本月車馬費</div></div><div class="kpi"><div class="n" style="font-size:16px">${nf(tFee)}</div><div class="l">累計車馬費</div></div></div>
+   <div class="sect">歷史完工紀錄（${cs.length}）</div>
+   ${cs.map(c=>{const b=bk(c.bk);return `<div class="card"><div class="row" style="border:none"><div><b>${b.date} ${b.slot.slice(0,5)}</b> ${badge(b.type==="demo"?"示範服務":"會員服務","b-blue")}<div class="muted small">${cust(b.cust).name} · ${cust(b.cust).dist}</div></div>${c.rating?stars(c.rating):'<span class="muted small">未評</span>'}</div></div>`;}).join("")}
+   <button class="btn dang" onclick="A.go('launcher')">🚪 登出</button>`;};
+
+/* ===================== ADMIN ===================== */
+function adminHead(h,s){return `<div class="hdr2"><div class="h">${h}</div>${s?`<div class="s">${s}</div>`:""}</div>`;}
+function aback(t,to){return `<div class="ab"><div class="l"><span class="bk" onclick="A.go('${to}')">‹</span><span>${t}</span></div></div>`;}
+SCREENS.ahome=()=>{const td=db.bookings.filter(b=>b.date===TODAY).length;const mo=db.bookings.filter(b=>b.date.startsWith("2026-06")&&b.type==="package").length;
+  const mods=[["dashboard","數據儀表板","漏斗 / 排行 / 地區"],["services","服務項目","新增 / 編輯 / 停用"],["packages","套組方案","次數 / 售價 / 試算"],["promotions","優惠活動","折扣 / 加贈"],["calendar","行事曆","週 / 日 / 月"],["abookings","預約管理","搜尋 / 改派 / 建單"],["acompletion","完工紀錄","照片 / 評分 / 車馬費"],["customers","客戶管理","CRM / 代建 / 套組"],["astaff","業務管理","狀態 / 禁牌"],["reports","獎金報表","車馬費 + CSV"],["scheduleLocks","班表鎖定","鎖定 / 解鎖"],["notif","推播設定","模板 / 黑名單"],["payroll","薪資參數","車馬費 / 級距"],["admins","管理員帳號","角色 / 權限"],["logs","操作歷程","誰 / 何時 / 做了什麼"]];
+  return adminHead("行政後台","歡迎，行政人員")+`<div class="sect">今日概覽</div>
+   <div class="kpis"><div class="kpi"><div class="n">${td}</div><div class="l">今日預約</div></div><div class="kpi"><div class="n">${db.staff.length}</div><div class="l">在線業務</div></div><div class="kpi"><div class="n">${mo}</div><div class="l">本月套組</div></div></div>
+   <div class="sect">管理功能</div>
+   <div class="grid2">${mods.map(m=>`<div class="mtile" onclick="A.go('${m[0]}')"><b>${m[1]}</b><div class="d">${m[2]}</div></div>`).join("")}</div>
+   <button class="btn dang" onclick="A.go('launcher')" style="margin-top:14px">登出</button>`;};
+SCREENS.dashboard=()=>{const demoBk=db.bookings.filter(b=>b.type==="demo").length;const demoDone=db.completions.filter(c=>bk(c.bk)&&bk(c.bk).type==="demo").length;const pkg=db.bookings.filter(b=>b.type==="package").length;
+  const rate=demoBk?Math.round(demoDone/demoBk*100):0;
+  const rank=db.staff.map(s=>({n:s.name,c:db.completions.filter(c=>bk(c.bk)&&bk(c.bk).staff===s.id).length,f:db.completions.filter(c=>bk(c.bk)&&bk(c.bk).staff===s.id).reduce((a,b)=>a+b.fee,0)})).sort((a,b)=>b.c-a.c);
+  return aback("數據儀表板","ahome")+adminHead("數據儀表板","即時計算（會隨你的操作變動）")+`
+   <div class="kpis"><div class="kpi"><div class="n">${db.bookings.length}</div><div class="l">總預約</div></div><div class="kpi"><div class="n">${db.completions.length}</div><div class="l">總完工</div></div><div class="kpi"><div class="n">${db.compensations.length}</div><div class="l">補償</div></div></div>
+   <div class="card"><b>Demo 轉化漏斗</b><div class="row"><span>Demo 預約</span><b>${demoBk}</b></div><div class="row"><span>Demo 完工</span><b>${demoDone}</b></div><div class="row"><span>購套組</span><b>${pkg}</b></div><div class="row"><b style="color:var(--pri-d)">Demo 轉化率</b><b style="color:var(--pri-d)">${rate}%</b></div></div>
+   <div class="card"><b>業務完工排行</b>${rank.map((r,i)=>`<div class="row"><span>${i+1}. ${r.n}　${r.c} 場</span><b>${nf(r.f)}</b></div>`).join("")}</div>`;};
+SCREENS.services=()=>aback("服務項目管理","ahome")+`<div class="ab" style="position:static"><div class="l"><span>服務項目（${db.services.length}）</span></div><span class="rt" onclick="A.go('serviceForm',{edit:null})">＋ 新增</span></div>
+   <table class="tbl" style="margin:8px 14px"><tr><th>名稱</th><th>類型</th><th>單價</th><th>狀態</th><th></th></tr>
+   ${db.services.map(s=>`<tr><td><b>${s.name}</b><div class="muted small">${s.desc}</div></td><td>${badge(s.base?"基礎SKU":"加購","b-blue")}</td><td>${nf(s.price)}</td><td>${s.active?badge("啟用","b-ok"):badge("停用","b-gray")}</td>
+   <td><span class="link" onclick="A.go('serviceForm',{edit:'${s.id}'})">編輯</span> · <span class="link" onclick="A.toggleSvc('${s.id}')">${s.active?"停用":"啟用"}</span> · <span class="link" style="color:var(--dang)" onclick="A.delSvc('${s.id}')">刪除</span></td></tr>`).join("")}</table>`;
+A.toggleSvc=id=>{const s=db.services.find(x=>x.id===id);s.active=!s.active;log("服務項目"+(s.active?"啟用":"停用"),s.name);render();};
+A.delSvc=id=>{db.services=db.services.filter(x=>x.id!==id);log("刪除服務項目",id);toast("已刪除");render();};
+SCREENS.serviceForm=()=>{const e=st.p.edit?db.services.find(x=>x.id===st.p.edit):null;return aback(e?"編輯服務項目":"新增服務項目","services")+`
+   <div class="field"><label>名稱 *</label><input class="ipt" id="sf-name" value="${e?esc(e.name):""}" placeholder="例：基礎除蟎"></div>
+   <div class="field"><label>描述</label><input class="ipt" id="sf-desc" value="${e?esc(e.desc):""}"></div>
+   <div class="field"><label>單價（NT$）*</label><input class="ipt" id="sf-price" type="number" value="${e?e.price:0}"></div>
+   <div class="field"><label>預設時長（分鐘）*</label><input class="ipt" id="sf-dur" type="number" value="${e?e.dur:60}"></div>
+   <div class="card"><div class="row"><span>基礎 SKU</span><div class="toggle ${e&&e.base?"":"off"}" id="sf-base" onclick="this.classList.toggle('off')"></div></div>
+   <div class="row"><span>加購項目</span><div class="toggle ${e?(e.addon?"":"off"):"off"}" id="sf-addon" onclick="this.classList.toggle('off')"></div></div>
+   <div class="row"><span>啟用狀態</span><div class="toggle ${e?(e.active?"":"off"):""}" id="sf-active" onclick="this.classList.toggle('off')"></div></div></div>
+   <button class="btn" onclick="A.saveSvc('${e?e.id:""}')">${e?"儲存":"新增服務項目"}</button>`;};
+A.saveSvc=id=>{const name=val("sf-name");if(!name){toast("請輸入名稱");return;}
+  const o={name,desc:val("sf-desc"),price:+val("sf-price")||0,dur:+val("sf-dur")||60,base:!document.getElementById("sf-base").classList.contains("off"),addon:!document.getElementById("sf-addon").classList.contains("off"),active:!document.getElementById("sf-active").classList.contains("off")};
+  if(id){Object.assign(db.services.find(x=>x.id===id),o);log("編輯服務項目",name);}else{o.id="sv"+Date.now();db.services.push(o);log("新增服務項目",name);}
+  toast("已儲存");A.go("services");};
+SCREENS.packages=()=>aback("套組方案管理","ahome")+`<div class="ab" style="position:static"><div class="l"><span>套組方案　${badge("試算·未含金流","b-warn")}</span></div><span class="rt" onclick="A.go('packageForm')">＋ 新增</span></div>
+   <table class="tbl" style="margin:8px 14px"><tr><th>名稱</th><th>次數</th><th>售價</th><th>每次試算</th><th>狀態</th><th></th></tr>
+   ${db.packages.map(p=>`<tr><td><b>${p.name}</b></td><td>${p.total}</td><td>${nf(p.price)}</td><td class="muted">${nf(Math.round(p.price/p.total))}</td><td>${p.active?badge("啟用","b-ok"):badge("停用","b-gray")}</td><td><span class="link" onclick="A.togglePkg('${p.id}')">${p.active?"停用":"啟用"}</span></td></tr>`).join("")}</table>`;
+A.togglePkg=id=>{const p=db.packages.find(x=>x.id===id);p.active=!p.active;render();};
+SCREENS.packageForm=()=>aback("新增套組方案","packages")+`
+   <div class="field"><label>名稱 *</label><input class="ipt" id="pf-name" placeholder="例：基礎除蟎 8 次套組"></div>
+   <div class="field"><label>總次數（次）*</label><input class="ipt" id="pf-total" type="number" value="8" oninput="A.calcPkg()"></div>
+   <div class="field"><label>售價（NT$）*</label><input class="ipt" id="pf-price" type="number" value="16000" oninput="A.calcPkg()"></div>
+   <div class="warnbox">每次試算單價：<b id="pf-calc">NT$ 2,000</b>　（售價 / 總次數，不含金流）</div>
+   <button class="btn" onclick="A.savePkg()">新增套組方案</button>`;
+A.calcPkg=()=>{const t=+val("pf-total")||1,p=+val("pf-price")||0;const el=document.getElementById("pf-calc");if(el)el.textContent=nf(Math.round(p/t));};
+A.savePkg=()=>{const name=val("pf-name");if(!name){toast("請輸入名稱");return;}db.packages.push({id:"pk"+Date.now(),name,total:+val("pf-total")||8,price:+val("pf-price")||0,active:true});log("新增套組方案",name);toast("已新增");A.go("packages");};
+SCREENS.promotions=()=>aback("優惠活動管理","ahome")+`<div class="ab" style="position:static"><div class="l"><span>優惠活動（${db.promotions.length}）</span></div><span class="rt" onclick="A.go('promotionForm')">＋ 新增</span></div>
+   <table class="tbl" style="margin:8px 14px"><tr><th>名稱</th><th>類型</th><th>優惠值</th><th>狀態</th><th></th></tr>
+   ${db.promotions.map(p=>{const tm={amount:"折抵金額",percent:"折抵%",bonus:"加贈次數",free_trial:"免費試用"}[p.type];return `<tr><td>${p.name}</td><td>${badge(tm,"b-blue")}</td><td>${p.value}${p.type==="percent"?"%":" 次/元"}</td><td>${p.active?badge("啟用","b-ok"):badge("停用","b-gray")}</td><td><span class="link" onclick="A.togglePm('${p.id}')">${p.active?"停用":"啟用"}</span></td></tr>`;}).join("")}</table>`;
+A.togglePm=id=>{const p=db.promotions.find(x=>x.id===id);p.active=!p.active;render();};
+SCREENS.promotionForm=()=>aback("新增優惠活動","promotions")+`
+   <div class="field"><label>名稱 *</label><input class="ipt" id="qf-name"></div>
+   <div class="field"><label>優惠類型 *</label><select class="ipt" id="qf-type"><option value="amount">折抵金額</option><option value="percent">折抵百分比</option><option value="bonus">加贈次數</option><option value="free_trial">免費試用</option></select></div>
+   <div class="field"><label>優惠值 *</label><input class="ipt" id="qf-val" type="number" value="0"></div>
+   <button class="btn" onclick="A.savePm()">新增優惠活動</button>`;
+A.savePm=()=>{const name=val("qf-name");if(!name){toast("請輸入名稱");return;}db.promotions.push({id:"pm"+Date.now(),name,type:val("qf-type"),value:+val("qf-val")||0,active:true});log("新增優惠活動",name);toast("已新增");A.go("promotions");};
+SCREENS.calendar=()=>{const wk=db.bookings.filter(b=>b.date>=TODAY).slice(0,30);
+  return aback("行事曆","ahome")+adminHead("行事曆總覽","即時數據")+`
+   <div class="kpis"><div class="kpi"><div class="n">${db.bookings.filter(b=>b.date===TODAY).length}</div><div class="l">今日預約</div></div><div class="kpi"><div class="n">${db.bookings.filter(b=>b.status==="進行中").length}</div><div class="l">進行中</div></div><div class="kpi"><div class="n">${db.bookings.filter(b=>b.status==="棄單").length}</div><div class="l">待補單</div></div></div>
+   <div class="sect">近期預約</div>
+   <table class="tbl" style="margin:0 14px"><tr><th>日期</th><th>時段</th><th>客戶</th><th>業務</th><th>狀態</th></tr>
+   ${wk.map(b=>`<tr><td>${b.date.slice(5)}</td><td>${b.slot}</td><td>${cust(b.cust).name}</td><td>${stf(b.staff).name}</td><td>${statusBadge(b.status)}</td></tr>`).join("")}</table>`;};
+SCREENS.abookings=()=>{const tab=st.p.bkTab||"全部";const tabs=["全部","今日","棄單","已完成"];
+  let list=db.bookings.slice().sort((a,b)=>a.date<b.date?1:-1);
+  if(tab==="今日")list=list.filter(b=>b.date===TODAY);else if(tab==="棄單")list=list.filter(b=>b.status==="棄單");else if(tab==="已完成")list=list.filter(b=>b.status==="已完成");
+  return aback("預約管理","ahome")+adminHead("預約管理",db.bookings.length+" 筆預約")+`
+   <div class="tabs">${tabs.map(t=>`<span class="pill ${tab===t?'on':''}" onclick="A.set('bkTab','${t}')">${t}</span>`).join("")}</div>
+   <table class="tbl" style="margin:0 14px"><tr><th>客戶</th><th>業務</th><th>時段</th><th>狀態</th><th>操作</th></tr>
+   ${list.map(b=>`<tr><td>${cust(b.cust).name}</td><td>${stf(b.staff).name}</td><td>${b.date.slice(5)}<br><span class="muted">${b.slot}</span></td><td>${statusBadge(b.status)}</td>
+   <td>${["待派工","已確認"].includes(b.status)?`<span class="link" onclick="A.go('bookingDetail',{bk:'${b.id}'})">改派/詳情</span>`:`<span class="link" onclick="A.go('bookingDetail',{bk:'${b.id}'})">詳情</span>`}</td></tr>`).join("")}</table>
+   <button class="btn sec" onclick="A.go('bookingNew')">＋ 手動建立預約</button>`;};
+SCREENS.bookingDetail=()=>{const b=bk(st.p.bk);const reassign=st.p.reassign;
+  return aback("預約詳情","abookings")+`<div class="card"><div class="row" style="border:none"><b>#${b.id}</b>${statusBadge(b.status)}</div></div>
+   <div class="card"><div class="row"><span class="muted">服務日期</span><b>${b.date}</b></div><div class="row"><span class="muted">服務時段</span><b>${b.slot}</b></div>
+   <div class="row"><span class="muted">服務類型</span><b>${b.type==="demo"?"demo":"套組服務"}</b></div>
+   <div class="row"><span class="muted">客戶</span><b>${cust(b.cust).name}（${cust(b.cust).phone}）</b></div>
+   <div class="row"><span class="muted">地址</span><b>${cust(b.cust).city}${cust(b.cust).dist}${esc(cust(b.cust).addr)}</b></div>
+   <div class="row"><span class="muted">指派業務</span><b>${stf(b.staff).name}</b></div></div>
+   ${["待派工","已確認"].includes(b.status)?(reassign?`<div class="card"><b class="small">選擇新業務</b>${db.staff.map(s=>`<div class="row" onclick="A.doReassign('${b.id}','${s.id}')" style="cursor:pointer"><span>${b.staff===s.id?"◉":"◯"} ${s.name}</span><span class="muted small">${s.phone}</span></div>`).join("")}<button class="btn sec" onclick="A.set('reassign',false)">取消</button></div>`:`<button class="btn" onclick="A.set('reassign',true)">改派業務</button>`):""}
+   <button class="btn sec" onclick="A.go('abookings')">返回列表</button>`;};
+A.doReassign=(bid,sid)=>{const b=bk(bid);const old=stf(b.staff).name;b.staff=sid;log("改派業務",cust(b.cust).name+"："+old+" → "+stf(sid).name);st.p.reassign=false;toast("已改派給 "+stf(sid).name+"（客戶將收到異動通知）");render();};
+SCREENS.bookingNew=()=>{return aback("手動建立預約","abookings")+adminHead("手動建立預約","市話老客無法自助OTP，由行政代建（BL-#013）")+`
+   <div class="field"><label>選擇客戶 *</label><select class="ipt" id="bn-cust">${db.customers.filter(c=>c.name).map(c=>`<option value="${c.id}">${c.name}（${c.phone}）</option>`).join("")}</select></div>
+   <div class="field"><label>服務日期 *</label><input class="ipt" id="bn-date" type="date" value="2026-06-25"></div>
+   <div class="field"><label>時段 *</label><select class="ipt" id="bn-slot">${SLOTS.map(s=>`<option>${s}</option>`).join("")}</select></div>
+   <div class="field"><label>服務類型</label><select class="ipt" id="bn-type"><option value="demo">Demo 體驗</option><option value="package">套組服務</option></select></div>
+   <div class="field"><label>指定業務</label><select class="ipt" id="bn-staff"><option value="">不指定（自動派工）</option>${db.staff.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")}</select></div>
+   <button class="btn" onclick="A.createBooking()">建立預約</button>`;};
+A.createBooking=()=>{const c=val("bn-cust");let sid=val("bn-staff");const cu=cust(c);if(!sid){sid=(db.staff.find(s=>s.areas.includes(cu.dist))||db.staff[0]).id;}
+  db.bookings.push({id:"b"+Date.now(),cust:c,staff:sid,type:val("bn-type"),date:val("bn-date"),slot:val("bn-slot"),status:"已確認"});log("行政代建預約",cu.name+" "+val("bn-date").slice(5));toast("已建立預約，指派 "+stf(sid).name);A.go("abookings");};
+SCREENS.acompletion=()=>{return aback("完工紀錄","ahome")+adminHead("完工紀錄",db.completions.length+" 筆完工")+`
+   <table class="tbl" style="margin:8px 14px"><tr><th>日期</th><th>客戶</th><th>業務</th><th>車馬費</th><th>評分</th><th></th></tr>
+   ${db.completions.map(c=>{const b=bk(c.bk);return `<tr><td>${b.date.slice(5)}</td><td>${cust(b.cust).name}</td><td>${stf(b.staff).name}</td><td>${c.fee?badge(nf(c.fee)+" "+c.feeStatus,c.feeStatus==="已匯出"?"b-ok":"b-warn"):badge("Demo 無","b-gray")}</td><td>${c.rating?stars(c.rating):'<span class="muted">未評</span>'}</td><td><span class="link" onclick="A.go('completionDetail',{bk:'${c.bk}'})">詳情</span></td></tr>`;}).join("")}</table>`;};
+SCREENS.completionDetail=()=>{const c=db.completions.find(x=>x.bk===st.p.bk);const b=bk(c.bk);return aback("完工詳情","acompletion")+`
+   <div class="sect">預約資訊</div>
+   <div class="card"><div class="row"><span class="muted">客戶</span><b>${cust(b.cust).name}（${cust(b.cust).phone}）</b></div><div class="row"><span class="muted">業務</span><b>${stf(b.staff).name}</b></div><div class="row"><span class="muted">日期/時段</span><b>${b.date} ${b.slot}</b></div></div>
+   <div class="sect">計酬記錄（BL-#023）</div>
+   <div class="card"><div class="row"><span class="muted">計酬類型</span><b>${c.fee?"車馬費":"Demo（無車馬費）"}</b></div><div class="row"><span class="muted">應領金額</span><b>${nf(c.fee)}</b></div><div class="row"><span class="muted">所屬月份</span><b>${c.month}</b></div><div class="row"><span class="muted">狀態</span>${c.fee?badge(c.feeStatus,c.feeStatus==="已匯出"?"b-ok":"b-warn"):"—"}</div>
+   ${c.fee&&c.feeStatus!=="已匯出"?`<button class="btn" style="margin:8px 0 0" onclick="A.markExported('${c.bk}')">標記為「已匯出」</button>`:""}</div>
+   <div class="sect">服務內容</div>
+   <div class="card"><div class="row"><span class="muted">服務時數</span><b>${c.hours} 小時</b></div><div class="row"><span class="muted">客戶評分</span><b>${c.rating?stars(c.rating)+" "+esc(c.comment):"未評分"}</b></div>
+   <div class="row"><span class="muted">服務備註（客戶可見）</span><b>${esc(c.custNote)||"—"}</b></div>
+   <div class="row"><span class="muted">內部備註</span><b>${esc(c.internalNote)||"—"}</b></div>
+   <div class="row"><span class="muted">客戶簽名</span><b>${c.signed?"已簽名":"未簽名"}</b></div></div>`;};
+A.markExported=id=>{db.completions.find(x=>x.bk===id).feeStatus="已匯出";log("標記車馬費已匯出",cust(bk(id).cust).name);toast("已標記為已匯出");render();};
+SCREENS.customers=()=>aback("客戶管理","ahome")+`<div class="ab" style="position:static"><div class="l"><span>客戶管理（${db.customers.filter(c=>c.name).length}）</span></div><span class="rt" onclick="A.go('customerNew')">＋ 代建客戶</span></div>
+   ${db.customers.filter(c=>c.name).map(c=>`<div class="card" onclick="A.go('customerDetail',{c:'${c.id}'})" style="cursor:pointer"><div class="row" style="border:none"><div><b>${c.name}</b>${c.manual?" "+badge("代建","b-gray"):""}<div class="muted small">${c.phone} · ${c.city}${c.dist}</div></div>${c.pkgRem>0?badge(c.pkgRem+" 次","b-blue"):badge("無次數","b-gray")}</div></div>`).join("")}`;
+SCREENS.customerNew=()=>aback("手動代建客戶","customers")+adminHead("手動代建客戶","市話老客無法自助OTP註冊（BL-#013）")+`
+   <div class="field"><label>姓名 *</label><input class="ipt" id="cn-name"></div>
+   <div class="field"><label>電話 *（手機或市話）</label><input class="ipt" id="cn-phone" placeholder="0912345678 或 04-12345678"></div>
+   <div class="field"><label>服務地址</label><div class="seg" style="margin-bottom:7px"><select class="ipt" id="cn-city"><option>台中市</option><option>台北市</option></select><select class="ipt" id="cn-dist">${["北區","西屯區","北屯區","南屯區","豐原區"].map(d=>`<option>${d}</option>`).join("")}</select></div><input class="ipt" id="cn-addr" placeholder="詳細地址"></div>
+   <button class="btn" onclick="A.createCust()">建立客戶</button>`;
+A.createCust=()=>{const n=val("cn-name");if(!n){toast("請輸入姓名");return;}db.customers.push({id:"c"+Date.now(),name:n,phone:val("cn-phone"),city:val("cn-city"),dist:val("cn-dist"),addr:val("cn-addr"),pkgRem:0,pkgTotal:0,manual:true});log("代建客戶",n);toast("已建立客戶");A.go("customers");};
+SCREENS.customerDetail=()=>{const c=cust(st.p.c);const hist=db.bookings.filter(b=>b.cust===c.id);return aback("客戶詳情","customers")+`
+   <div class="card"><b style="font-size:15px">${c.name}</b>${c.manual?" "+badge("代建","b-gray"):" "+badge("自助註冊","b-blue")}<div class="muted small">${c.phone} · ${c.city}${c.dist}${esc(c.addr)}</div></div>
+   <div class="sect">套組次數</div>
+   <div class="card"><div class="row" style="border:none"><b>${c.pkgRem>0?c.pkgRem+" / "+c.pkgTotal+" 次":"尚無套組"}</b><button class="btn ibtn" onclick="A.assignPkg('${c.id}')">＋ 指派套組</button></div></div>
+   <div class="sect">服務歷史（${hist.length}）</div>
+   ${hist.length?hist.map(b=>`<div class="card"><div class="row" style="border:none"><span>${b.date.slice(5)} ${b.slot.slice(0,5)}</span>${statusBadge(b.status)}</div></div>`).join(""):`<div class="card muted cen">尚無服務記錄</div>`}`;};
+A.assignPkg=id=>{const c=cust(id);const p=db.packages[0];c.pkgRem+=p.total;c.pkgTotal+=p.total;log("指派套組",c.name+" +"+p.total+" 次");toast("已指派「"+p.name+"」");render();};
+SCREENS.astaff=()=>aback("業務管理","ahome")+`<div class="pad"><b>業務管理</b><div class="muted small">共 ${db.staff.length} 位業務</div></div>
+   ${db.staff.map(s=>`<div class="card"><div class="row" style="border:none"><b>${s.name}</b>${s.status==="online"?badge("在線","b-ok"):s.status==="banned"?badge("禁牌中","b-dang"):badge("停用","b-gray")}</div>
+   <div class="muted small">區域：台中市 · ★ ${s.rating} · 完工 ${db.completions.filter(c=>bk(c.bk)&&bk(c.bk).staff===s.id).length} 場</div>
+   <div class="seg" style="margin-top:8px"><div class="o" onclick="A.staffStatus('${s.id}','online')">在線</div><div class="o" style="color:var(--dang)" onclick="A.staffStatus('${s.id}','banned')">禁牌</div><div class="o" onclick="A.staffStatus('${s.id}','disabled')">停用</div></div></div>`).join("")}`;
+A.staffStatus=(id,s)=>{stf(id).status=s;log("變更業務狀態",stf(id).name+" → "+s);render();};
+SCREENS.reports=()=>{const month=TODAY.slice(0,7);const rows=db.staff.map(s=>{const cs=db.completions.filter(c=>c.month===month&&bk(c.bk)&&bk(c.bk).staff===s.id);return{n:s.name,c:cs.length,fee:cs.reduce((a,b)=>a+b.fee,0)};}).filter(r=>r.c>0);
+  const total=rows.reduce((a,b)=>a+b.fee,0);
+  return aback("獎金報表","ahome")+adminHead("業務獎金報表","系統算錢、不碰金流（BL-#023）")+`
+   <div class="warnbox">此報表僅供行政核對 / 給會計，系統不自動撥款。現行車馬費率 ${nf(db.payroll.travelFee)}（來自薪資參數）。</div>
+   <div class="kpis"><div class="kpi"><div class="n" style="font-size:15px">${nf(total)}</div><div class="l">車馬費合計</div></div><div class="kpi"><div class="n" style="font-size:15px">NT$ 0</div><div class="l">銷售獎金</div></div><div class="kpi"><div class="n" style="font-size:15px">${nf(total)}</div><div class="l">應領總額</div></div></div>
+   <table class="tbl" style="margin:0 14px"><tr><th>業務</th><th>完工</th><th>車馬費</th><th>小計</th></tr>${rows.map(r=>`<tr><td>${r.n}</td><td>${r.c} 場</td><td>${r.fee.toLocaleString()}</td><td><b>${r.fee.toLocaleString()}</b></td></tr>`).join("")}</table>
+   <button class="btn" onclick="A.exportCsv()">匯出 CSV（共 ${rows.length} 位業務）</button>`;};
+A.exportCsv=()=>{log("匯出獎金 CSV",TODAY.slice(0,7));toast("已產生 CSV（原型示意）並記入操作歷程");};
+SCREENS.scheduleLocks=()=>aback("班表鎖定","ahome")+`<div class="note">預設依日期自動鎖定（BL-#011）。可對個別業務手動覆蓋。</div>
+   ${db.staff.map(s=>["2026-06（本月）","2026-07（次月）"].map((mo,i)=>{const key=s.id+"-"+i;const locked=db._locks?db._locks[key]:(i===0);return `<div class="card"><div class="row" style="border:none"><div><b>${s.name}</b><div class="muted small">${mo}</div></div>${locked?badge("🔒 已鎖","b-gray"):badge("🟢 開放","b-ok")}</div>
+   <div class="seg" style="margin-top:8px"><div class="o" style="color:var(--dang)" onclick="A.lock('${key}',true)">鎖定</div><div class="o" style="color:var(--ok)" onclick="A.lock('${key}',false)">解鎖</div><div class="o" onclick="A.lock('${key}',${i===0})">恢復自動</div></div></div>`;}).join("")).join("")}`;
+A.lock=(key,v)=>{db._locks=db._locks||{};db._locks[key]=v;log("班表"+(v?"鎖定":"解鎖"),key);render();};
+SCREENS.notif=()=>{const tpl=[["預約成功（客戶）","您的{{service_type}}服務已預約成功，服務時間：{{date}} {{time_slot}}"],["完工邀評（客戶）","{{staff_name}}師傅完成服務！請為這次服務評分"],["補單機會（業務）","有一筆{{date}} {{time_slot}} {{district}}的補單，30分鐘內回應"],["師傅出發（客戶）","師傅{{staff_name}}已出發，預計{{eta}}抵達"],["業務更換（客戶）","您的服務改由{{new_staff_name}}師傅服務"],["許願開放（客戶）","{{date}} {{time_slot}} {{district}}有新開班，您的許願可以預約了！"]];
+  return aback("推播設定","ahome")+`<div class="tabs"><span class="pill on">推播模板</span><span class="pill" onclick="toast('原型：黑名單為空')">黑名單</span><span class="pill" onclick="toast('原型：推播記錄')">推播記錄</span></div>
+   <div class="note">模板支援個人化變數 {{variable}}（共 8 種，此處列出代表性 6 種）</div>
+   ${tpl.map(t=>`<div class="card"><div class="row" style="border:none"><b class="small">${t[0]}</b><span class="link" onclick="toast('原型：開啟模板編輯')">編輯</span></div><div class="muted small" style="margin-top:4px">${t[1]}</div></div>`).join("")}`;};
+SCREENS.payroll=()=>aback("薪資參數","ahome")+adminHead("薪資參數設定","車馬費・時數級距・加給（BL-#023）")+`
+   <div class="warnbox">此處設定為後續完工試算的單一依據。修改後僅影響之後新寫入的紀錄，不回溯既有資料。</div>
+   <div class="field"><label>車馬費（NT$）— 每場完工基準</label><input class="ipt" id="pp-fee" type="number" value="${db.payroll.travelFee}"></div>
+   <div class="card"><div class="row" style="border:none"><b class="small">時數級距價</b><span class="muted small">（原型未啟用）</span></div></div>
+   <div class="card"><div class="row" style="border:none"><b class="small">加給</b><span class="muted small">（原型未啟用）</span></div></div>
+   <button class="btn" onclick="A.savePayroll()">儲存薪資參數</button>`;
+A.savePayroll=()=>{db.payroll.travelFee=+val("pp-fee")||400;log("修改薪資參數","車馬費 "+db.payroll.travelFee);toast("已儲存，之後完工將以此試算");};
+SCREENS.admins=()=>aback("管理員帳號","ahome")+`<div class="card"><b>行政人員</b> ${badge("最高權限（'*'）","b-blue")}<div class="muted small">0900000003 · 通過所有檢查</div></div>
+   <div class="sect">套用角色模板</div><div class="tabs"><span class="pill">帳務</span><span class="pill">排班行政</span><span class="pill">電訪專員</span></div>
+   <div class="sect">逐項權限（模組 × 動作）</div>
+   <table class="tbl" style="margin:0 14px"><tr><th>模組</th><th>檢視</th><th>新增</th><th>編輯</th><th>刪除</th></tr>${["數據儀表板","預約管理","完工紀錄","客戶管理","獎金報表"].map(m=>`<tr><td>${m}</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>`).join("")}</table>
+   <div class="note">…共 15 模組</div>
+   <div class="card"><div class="row" style="border:none"><div><b class="small">欄位遮蔽：隱藏金額</b><div class="muted small">開啟後看不到應領金額/車馬費/獎金（電訪適用）</div></div><div class="toggle off" onclick="this.classList.toggle('off');toast('原型示意')"></div></div></div>`;
+SCREENS.logs=()=>aback("操作歷程","ahome")+adminHead("操作歷程","後台關鍵操作與客戶事件留痕（最新在前）")+`
+   ${db.logs.length?db.logs.map(l=>`<div class="card"><div class="row" style="border:none"><b class="small">${l.act}</b><span class="muted small">${l.t}</span></div><div class="muted small">${l.who} · ${esc(l.tgt)}</div></div>`).join(""):`<div class="card muted cen">尚無操作紀錄</div>`}`;
+
+/* ---- util ---- */
+function futureDates(n){const out=[];const wd=["日","一","二","三","四","五","六"];const base=new Date(TODAY+"T00:00");
+  for(let i=0;i<n;i++){const d=new Date(base);d.setDate(d.getDate()+i);out.push({i,iso:d.toISOString().slice(0,10),md:(d.getMonth()+1)+"/"+d.getDate(),wd:"週"+wd[d.getDay()]});}return out;}
+
+render();
+</script>
